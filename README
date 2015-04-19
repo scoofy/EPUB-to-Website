@@ -1,0 +1,18 @@
+EPUB to Website
+
+Instructions:
+	Step 1: Unzip your EPUB (sorry, but writing that into this program was a bit too much for me).
+	Step 2: Name your site in the app.yaml file
+	Step 3: Place all your .xhtml files (basic text files) in templates/text folder.
+	Step 4: Place your nav.xhtml file in the templates/Navigation folder.
+	Step 5: Place all your images in the images folder (if you want unique error images, edit those in images/error_images).
+	Step 6: Go to data/data.py and edit "BOOK_TITLE", "BOOK_SUBTITLE", "AUTHOR_NAME", and "AUTHOR_WEBSITE". If either subtitle or author's website are not relevant, set it to None or "".
+	Step 7: Enjoy.
+
+This software is licensed under the AGPL v3 license.
+
+It is still in beta and is a work in progress. 
+
+Feel free to contact me via github if you have any questions.
+
+Thanks for stopping by!

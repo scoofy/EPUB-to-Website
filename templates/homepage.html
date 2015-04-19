@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		{{ title }}
+	</title>
+	<header>
+
+	</header>
+</head>
+<style>
+
+</style>
+<body>
+	<div style="text-align:center;">
+		<H1>{{ title }}</H1>
+		{% if subtitle %}
+			<H2>:</H2>
+			<H3>{{ subtitle }}</H3>
+		{% endif %}
+		<p> by {{author}}</p>
+
+		<a href="/thebook">the book</a> {% if website %}<a href="{{website}}">the author</a>{% endif %}
+	</div>
+</body>
+</html>
