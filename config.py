@@ -1,7 +1,7 @@
 import os, jinja2, re
 from collections import namedtuple
 from data import data
-from modules import markdown2
+from modules import markdown2, BeautifulSoup
 from google.appengine.ext import blobstore
 
 ################### Unique Global Variables ####################
@@ -25,50 +25,47 @@ jinja_env = jinja2.Environment(extensions=['jinja2.ext.with_'],
     autoescape = True)
 upload_url = blobstore.create_upload_url('/upload')
 
-SECTION_LIST = ["cover",
-				"introquote",
-				"titlepage",
-				"verso",
-				"reverso",
-				"nav",
-				"prologue",
-				"etape1",
-				"chapter1", 
-				"chapter2", 
-				"etape2",
-				"chapter3", 
-				"chapter4", 
-				"etape3",
-				"chapter5",
-				"chapter6",
-				"chapter7",
-				"conclusion",
-				"endnotes",
-				"backcover",
-				]
+# parse the package.opf file for chapter order
+package_soup = BeautifulSoup.BeautifulSoup(open("package/package.opf"))
+if not package_soup:
+    raise Exception("You must have a package.opf in the package folder.")
+    sys.exit()
+print package_soup("itemref")
+print package_soup("item")
+
+SECTION_LIST = []
+for item_ref in package_soup('itemref'):
+    item = package_soup.find(id=item_ref.get('idref'))
+    chapter_filename = item.get("href")
+    chapter_filename = chapter_filename.split("/")[-1]
+    chapter_filename = chapter_filename.replace(".xhtml","")
+    SECTION_LIST.append(chapter_filename)
+    print chapter_filename
+##
+## find the 
 XHTML_SECTION_LIST = []
 for section in SECTION_LIST:
-	if section != "nav":
-		XHTML_SECTION_LIST.append("text/" + section + ".xhtml")
-	else:
-		XHTML_SECTION_LIST.append("Navigation/" + section + ".xhtml")
+    if section != "nav":
+        XHTML_SECTION_LIST.append("text/" + section + ".xhtml")
+    else:
+        XHTML_SECTION_LIST.append("Navigation/" + section + ".xhtml")
 
 SectionTuple = namedtuple("SectionTuple", ["previous_section", "next_section"])
 BOOK_SECTION_DICT = {}
 XHTML_BOOK_SECTION_DICT = {}
 for i in range(len(XHTML_SECTION_LIST)):
-	if i == 0:
-		i_minus_one = len(XHTML_SECTION_LIST)-1
-		i_plus_one = i+1
-	elif i == len(XHTML_SECTION_LIST)-1:
-		i_minus_one = i-1
-		i_plus_one = 0
-	else:
-		i_minus_one = i-1
-		i_plus_one = i+1
-	this_tuple = SectionTuple(previous_section = XHTML_SECTION_LIST[i_minus_one], next_section = XHTML_SECTION_LIST[i_plus_one])
-	BOOK_SECTION_DICT[SECTION_LIST[i]] = this_tuple
-	XHTML_BOOK_SECTION_DICT[XHTML_SECTION_LIST[i]] = this_tuple
+    if i == 0:
+        i_minus_one = len(XHTML_SECTION_LIST)-1
+        i_plus_one = i+1
+    elif i == len(XHTML_SECTION_LIST)-1:
+        i_minus_one = i-1
+        i_plus_one = 0
+    else:
+        i_minus_one = i-1
+        i_plus_one = i+1
+    this_tuple = SectionTuple(previous_section = XHTML_SECTION_LIST[i_minus_one], next_section = XHTML_SECTION_LIST[i_plus_one])
+    BOOK_SECTION_DICT[SECTION_LIST[i]] = this_tuple
+    XHTML_BOOK_SECTION_DICT[XHTML_SECTION_LIST[i]] = this_tuple
 
 
 # Multi Drag/Drop Globals
