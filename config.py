@@ -1,4 +1,4 @@
-import os, jinja2, re
+import os, jinja2, re, logging
 from collections import namedtuple
 from data import data
 from modules import markdown2, BeautifulSoup
@@ -10,11 +10,6 @@ BOOK_SUBTITLE = data.BOOK_SUBTITLE
 AUTHOR_NAME = data.AUTHOR_NAME
 AUTHOR_WEBSITE = data.AUTHOR_WEBSITE
 ####################### Global Variables #######################
-URL_SAFE_CHARS = [
-    "a","A","b","B","c","C","d","D","e","E","f","F","g","G","h","H","i","I",
-    "j","J","k","K","l","L","m","M","n","N","o","O","p","P","q","Q","r","R",
-    "s","S","t","T","u","U","v","V","w","W","x","X","y","Y","z","Z",
-    "0","1","2","3","4","5","6","7","8","9","_","-"]
 URL_CHECK_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
     }
@@ -30,19 +25,20 @@ package_soup = BeautifulSoup.BeautifulSoup(open("package/package.opf"))
 if not package_soup:
     raise Exception("You must have a package.opf in the package folder.")
     sys.exit()
-print package_soup("itemref")
-print package_soup("item")
 
 SECTION_LIST = []
 for item_ref in package_soup('itemref'):
     item = package_soup.find(id=item_ref.get('idref'))
     chapter_filename = item.get("href")
-    chapter_filename = chapter_filename.split("/")[-1]
-    chapter_filename = chapter_filename.replace(".xhtml","")
+    chapter_filename = chapter_filename.split("/")
+    if len(chapter_filename) != 2 or chapter_filename[0] not in ['text', "Navigation"]:
+        improperly_formatted_file_path = chapter_filename
+        improperly_formatted_file_path.pop()
+        improperly_formatted_file_path = "/".join(improperly_formatted_file_path)
+        logging.error("Your EPUB isn't properly formatted, you will have to reset the /templates/text or /templates/Navigation folder to: /templates/" + improperly_formatted_file_path)
+    chapter_filename = chapter_filename[-1].replace(".xhtml","")
     SECTION_LIST.append(chapter_filename)
-    print chapter_filename
 ##
-## find the 
 XHTML_SECTION_LIST = []
 for section in SECTION_LIST:
     if section != "nav":
@@ -50,7 +46,7 @@ for section in SECTION_LIST:
     else:
         XHTML_SECTION_LIST.append("Navigation/" + section + ".xhtml")
 
-SectionTuple = namedtuple("SectionTuple", ["previous_section", "next_section"])
+SectionData = namedtuple("SectionData", ["previous_section", "next_section", "title"])
 BOOK_SECTION_DICT = {}
 XHTML_BOOK_SECTION_DICT = {}
 for i in range(len(XHTML_SECTION_LIST)):
@@ -63,9 +59,13 @@ for i in range(len(XHTML_SECTION_LIST)):
     else:
         i_minus_one = i-1
         i_plus_one = i+1
-    this_tuple = SectionTuple(previous_section = XHTML_SECTION_LIST[i_minus_one], next_section = XHTML_SECTION_LIST[i_plus_one])
+    section_soup = BeautifulSoup.BeautifulSoup(open("templates/" + str(XHTML_SECTION_LIST[i])))
+    section_title = section_soup.html.head.title.string.strip()
+    print "\n"*2, section_title
+    this_tuple = SectionData(previous_section = SECTION_LIST[i_minus_one], next_section = SECTION_LIST[i_plus_one], title = section_title)
+    this_xhtml_tuple = SectionData(previous_section = XHTML_SECTION_LIST[i_minus_one], next_section = XHTML_SECTION_LIST[i_plus_one], title = section_title)
     BOOK_SECTION_DICT[SECTION_LIST[i]] = this_tuple
-    XHTML_BOOK_SECTION_DICT[XHTML_SECTION_LIST[i]] = this_tuple
+    XHTML_BOOK_SECTION_DICT[XHTML_SECTION_LIST[i]] = this_xhtml_tuple
 
 
 # Multi Drag/Drop Globals

@@ -199,28 +199,37 @@ class HomePage(Handler):
 class BookPage(Handler):
     def get(self):
         #self.render('ebook.html')
-        self.redirect('text/cover.xhtml')
+        section = self.request.get('section')
+        if not section:
+            section = config.SECTION_LIST[0]
+        path = config.XHTML_SECTION_LIST[config.SECTION_LIST.index(section)]
+        previous_section = None
+        next_section = None
+        section_title = None
+        try:
+            this_section = config.BOOK_SECTION_DICT.get(section)
+            previous_section = this_section.previous_section
+            next_section = this_section.next_section
+            section_title = this_section.title
+        except:
+            logging.error("Something went wrong with page load")
+        self.render('bookpage.html',
+                    path = path,
+                    book_title = config.BOOK_TITLE,
+                    section_title = section_title,
+                    previous_section = previous_section,
+                    next_section = next_section,
+                    )
     def post(self):
         pass
 
 class TextHandler(Handler):
     def get(self, path):
         section = utils.remove_url_path_leading_slash(path)
+        # here we remove ".xhtml" but leave the anchor marker "#go_to_anchor_blah"
         section = utils.remove_url_path_xhtml_ending_if_present(section)
-        path = config.XHTML_SECTION_LIST[config.SECTION_LIST.index(section)]
-        previous_section = None
-        next_section = None
-        try:
-            this_section = config.BOOK_SECTION_DICT.get(section)
-            previous_section = this_section.previous_section
-            next_section = this_section.next_section
-        except:
-            pass
-        self.render('bookpage.html', 
-                    path = path,
-                    previous_section = previous_section,
-                    next_section = next_section,
-                    )
+        # this functionality seems to work well with the redirect
+        self.redirect("/thebook?section="+section)
     def post(self):
         pass
 
