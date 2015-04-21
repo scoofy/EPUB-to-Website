@@ -6,19 +6,21 @@ Step 1: Unzip your EPUB (sorry, but writing that into this program was a bit too
 
 Step 2: Name your site in the app.yaml file
 
-Step 3: Go to /data/data.py and edit "BOOK_TITLE", "BOOK_SUBTITLE", "AUTHOR_NAME", and "AUTHOR_WEBSITE". If either subtitle or author's website are not relevant, set it to None or "".
+Step 3: Go to /data/data.py and edit "BOOK_TITLE", "BOOK_SUBTITLE", "AUTHOR_NAME", "AUTHOR_WEBSITE" and "EPUB_FILENAME". If either subtitle or author's website are not relevant, set it to None or "".
 
-Step 4: Place your package.opf file in the /package folder (it should be named package.opf).
+Step 4: Place your epub in the home folder, and add the file name to the epub entry in the app.yaml file.
 
-Step 5: Place all your text .xhtml files (basic text content files) in /templates/text folder.
+Step 5: Place your package.opf file in the /package folder (it should be named package.opf).
 
-Step 6: Place your nav.xhtml file in the /templates/Navigation folder (it should be named nav.xhtml).
+Step 6: Place all your text .xhtml files (basic text content files) in /templates/text folder.
 
-Step 7: Place your css file in BOTH /css and /css/css.
+Step 7: Place your nav.xhtml file in the /templates/Navigation folder (it should be named nav.xhtml).
 
-Step 8: Place all your images in the images folder (if you want unique error images, edit those in /images/error_images).
+Step 8: Place your css file in BOTH /css and /css/css.
 
-Step 9: Enjoy.
+Step 9: Place all your images in the images folder (if you want unique error images, edit those in /images/error_images).
+
+Step 10: Enjoy.
 
 This software is licensed under the AGPL v3 license.
 
