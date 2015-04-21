@@ -186,13 +186,15 @@ class HomePage(Handler):
     def get(self):
         title = config.BOOK_TITLE
         subtitle = config.BOOK_SUBTITLE
+        epub_filename = config.EPUB_FILENAME
         author = config.AUTHOR_NAME
         website = config.AUTHOR_WEBSITE
         self.render('homepage.html', 
                     title = title,
                     subtitle = subtitle,
+                    epub_filename = epub_filename,
                     author = author,
-                    website = website
+                    website = website,
                     )   
     def post(self):
         pass
@@ -213,12 +215,18 @@ class BookPage(Handler):
             section_title = this_section.title
         except:
             logging.error("Something went wrong with page load")
+        # prevent cover pages from being enormous
+        page_is_a_cover = False
+        if section == config.SECTION_LIST[0] or section == config.SECTION_LIST[-1]:
+            # section is front or back cover
+            page_is_a_cover = True
         self.render('bookpage.html',
                     path = path,
                     book_title = config.BOOK_TITLE,
                     section_title = section_title,
                     previous_section = previous_section,
                     next_section = next_section,
+                    page_is_a_cover = page_is_a_cover,
                     )
     def post(self):
         pass
