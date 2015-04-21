@@ -20,6 +20,9 @@ jinja_env = jinja2.Environment(extensions=['jinja2.ext.with_'],
     autoescape = True)
 upload_url = blobstore.create_upload_url('/upload')
 
+# epub filename
+EPUB_FILENAME = data.EPUB_FILENAME
+
 # parse the package.opf file for chapter order
 package_soup = BeautifulSoup.BeautifulSoup(open("package/package.opf"))
 if not package_soup:
@@ -61,7 +64,6 @@ for i in range(len(XHTML_SECTION_LIST)):
         i_plus_one = i+1
     section_soup = BeautifulSoup.BeautifulSoup(open("templates/" + str(XHTML_SECTION_LIST[i])))
     section_title = section_soup.html.head.title.string.strip()
-    print "\n"*2, section_title
     this_tuple = SectionData(previous_section = SECTION_LIST[i_minus_one], next_section = SECTION_LIST[i_plus_one], title = section_title)
     this_xhtml_tuple = SectionData(previous_section = XHTML_SECTION_LIST[i_minus_one], next_section = XHTML_SECTION_LIST[i_plus_one], title = section_title)
     BOOK_SECTION_DICT[SECTION_LIST[i]] = this_tuple
