@@ -18,6 +18,10 @@ handlers:
 - url: /images
   static_dir: images
 
+- url: /howtobike\.epub
+  static_files: howtobike.epub
+  upload: /howtobike\.epub
+
 # All static file must be listed above this url
 - url: .*
   script: main.app
