@@ -1,4 +1,4 @@
-application: howtobikebook
+application: app_name
 version: 1-0-0
 runtime: python27
 api_version: 1
