@@ -24,7 +24,7 @@ Step 10: Set your unique password in the do_not_copy/do_not_copy.py, ideally, th
 
 Step 11: When you launch your website, navigate to "/upload" and upload your epub. If your upload is successful, follow the instructions by setting EPUB_UPLOADED to True and inputting the proper url for EPUB_FILE_URL. 
 
-Step 12: Enjoy. There may some extra, required html editing in homepage.html, but everything else should be ready to go.
+Step 12: Enjoy. There may some extra, required html editing in homepage.html, change the favicon.ico, etc., but everything else should be ready to go.
 
 This software is licensed under the AGPL v3 license.
 
