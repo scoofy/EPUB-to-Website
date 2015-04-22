@@ -1,14 +1,14 @@
 from __future__ import with_statement
 import os, webapp2, jinja2, hashlib, hmac, string, random, time, datetime, logging, urllib
 import urllib2, mimetypes, cgi, re, uuid, json
-import config
+import config, model
 import utilities as utils
 from data import data
 from do_not_copy import do_not_copy
 from modules import markdown2, BeautifulSoup
 from modules.pybcrypt import bcrypt
-from google.appengine.api import memcache, taskqueue, mail, images, files, urlfetch
-from google.appengine.ext import deferred, db, blobstore, webapp
+from google.appengine.api import memcache
+from google.appengine.ext import db, blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
 #########################################################
@@ -186,13 +186,19 @@ class HomePage(Handler):
     def get(self):
         title = config.BOOK_TITLE
         subtitle = config.BOOK_SUBTITLE
+        
         epub_filename = config.EPUB_FILENAME
+        epub_uploaded = config.EPUB_UPLOADED
+        epub_file_url = config.EPUB_FILE_URL
+        
         author = config.AUTHOR_NAME
         website = config.AUTHOR_WEBSITE
         self.render('homepage.html', 
                     title = title,
                     subtitle = subtitle,
                     epub_filename = epub_filename,
+                    epub_uploaded = epub_uploaded,
+                    epub_file_url = epub_file_url,
                     author = author,
                     website = website,
                     )   
@@ -245,45 +251,88 @@ class TextHandler(Handler):
         self.redirect("/thebook?section="+section)
     def post(self):
         pass
+class UploadHandler(Handler):
+    def get(self):
+        if config.EPUB_UPLOADED:
+            self.redirect("/")
+        upload_url = blobstore.create_upload_url('/complete_upload')
+        error_1 = self.request.get("error_1")
+        error_2 = self.request.get("error_2")
+        file_error = self.request.get("file_error")
+        error_3 = self.request.get("error_3")
+        self.render("upload.html",
+                    upload_url = upload_url,
+                    epub_filename = config.EPUB_FILENAME,
+
+                    error_1 = error_1,
+                    error_2 = error_2,
+                    file_error = file_error,
+                    error_3 = error_3,
+                    )
+class UploadCompletionHandler(ObjectUploadHandler):
+    def post(self):
+        filename = self.request.get("filename")
+        password = self.request.get("password")
+        epub = self.request.get("epub")
+        confirm = self.request.get("confirm")
+        if not (filename and password and epub and confirm):
+            # Unsuccessful
+            error_1 = ""
+            error_2 = ""
+            error_3 = ""
+            file_error = ""
+            if not filename:
+                error_1 = "You must have a filename."
+            if not password:
+                error_2 = "You must confirm your password."
+            if not epub:
+                file_error = "Hmm, it looks like you forgot to select a file to upload."
+            if not confirm:
+                error_3 = "You must confirm that everything is correct"
+            self.redirect("/upload?error_1=%s&error_2=%s&error_3=%s&file_error=%s" % (error_1, error_2, error_3, file_error))
+        if password != do_not_copy.secret():
+            if not password:
+                error_2 = "Your password was incorrect."
+            self.redirect("/upload?error_2=%s" % error_2)
+        #Successful Upload
+        try:
+            file_data = self.get_uploads()[0]
+        except:
+            self.redirect('/result')
+            return
+        file_url = '/serve/%s' % file_data.key()
+        file_blob_key = file_data.key()
+        new_epub = model.Epub(epoch = float(time.time()),
+                                file_url = file_url,
+                                file_blob_key = file_data.key(),
+                                filename = str(file_data.filename),
+                                )
+        new_epub.put()
+        self.redirect('/result?file_url=%s' % file_url)
+class ResultHandler(Handler):
+    def get(self):
+        file_url = self.request.get("file_url")
+        if not file_url:
+            error = True
+        else:
+            error = False
+        self.render("result.html", 
+                    file_url = file_url,
+                    error = error,
+                    )
 
 class RobotPage(Handler):
     def get(self):
         pass
-################### Caching #############################
-def users_cache(update = False, delay = 0):
-    key = 'all_users'
-    user_list = memcache.get(key)
-    if user_list is None or update:
-        if update:
-            logging.warning('db query sleep')
-            time.sleep(int(delay))
-        logging.warning("DB Users Query")
-        all_users = db.GqlQuery("SELECT * FROM Users WHERE deleted = FALSE ORDER BY created DESC")
-        user_list = list(all_users)
-        try:
-            memcache.set(key, user_list)
-        except Exception as exception:
-            logging.error("memcache set error")
-            print exception
-    return user_list
-def user_page_cache(user_id, update=False, delay = 0):
-    # changed key to be identical key to return_thing_by_id for a user
-    key = "Users_%s" % str(user_id)
-    user_in_db = memcache.get(key)
-    if user_in_db is None or update:
-        if update:
-            logging.warning('db query sleep')
-            time.sleep(int(delay))
-        logging.warning("DB Page Query -- user_page_cache")
-        user_in_db = Users.get_by_id(user_id)
-        user_in_db = [user_in_db]
-        try:
-            memcache.set(key, user_in_db)
-        except Exception as exception:
-            logging.error("memcache set error")
-            print exception
-    return user_in_db[0]
-#########################################################
+
+class FileServe(blobstore_handlers.BlobstoreDownloadHandler):
+    def get(self, blob_key):
+        if not blobstore.get(blob_key):
+            self.error(404)
+            return
+        else:
+            resource = str(urllib.unquote(blob_key))
+            self.send_blob(blob_key)
 
 #########################################################
 app = webapp2.WSGIApplication([
@@ -291,7 +340,11 @@ app = webapp2.WSGIApplication([
         ('/thebook', BookPage),
         (r'/text' + config.REG_EX_LETTERS_NUMBERS_DOT_AND_POUND, TextHandler),
         (r'/Navigation' + config.REG_EX_LETTERS_NUMBERS_DOT_AND_POUND, TextHandler),
-        ('/robots', RobotPage)
+        ('/upload', UploadHandler),
+        ('/complete_upload', UploadCompletionHandler),
+        ('/result', ResultHandler),
+        ('/robots.txt', RobotPage),
+        (r'/serve/([^/]+)?', FileServe),
         ], debug=True)
 
 ################## Error Handlers #######################

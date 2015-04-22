@@ -64,7 +64,7 @@
 			border-radius: 5px;
 			border: solid 1px #777;
 			padding: 10px 20px 10px 20px;
-			margin: 0px;
+			margin: 0 auto;
 		}
 		.button:hover {
 			background-color: #777;
@@ -91,11 +91,20 @@
 			{% endif %}
 			<div class="by">by {{ author }}</div>
 			<div class="">
-				<div class="button_container">
-					<a href="/thebook"><span class="button">read the book</span></a> 
-					<a href="/{{ epub_filename }}" target="_blank"><span class="button">download the .epub</span></a>
-					{% if website %}<a href="{{ website }}"><span class="button">meet the author</span></a>{% endif %}
-				</div>
+				<!--<form>-->
+					<div class="button_container">
+
+						<a href="/thebook"><span class="button">read the book</span></a> 
+						<!--
+						<input class="button" type="button" 
+							onClick="window.location.href='/{{ epub_filename }}'" 
+							value="download the .epub"
+						/>
+						-->
+						{% if epub_uploaded %}<a href="/{{ epub_filename }}" target="_blank"><span class="button">download the .epub</span></a>{% endif %}
+						{% if website %}<a href="{{ website }}"><span class="button">meet the author</span></a>{% endif %}
+					</div>
+				<!--</form>-->
 			</div>
 			<div class="footer"></div>
 		</div>

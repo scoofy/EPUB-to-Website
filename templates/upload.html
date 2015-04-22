@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Upload
+	</title>
+	<style>
+		* {
+			padding: 5px;
+			margin: 5px;
+		}
+		table {
+			border: solid 1px black;
+			padding: 5px;
+		}
+		.error {
+			color: red;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		Upload your epub:
+		<form method="post" action="{{upload_url}}" enctype="multipart/form-data">
+			<table>
+				<tr>
+					<td>
+						This should be your filename (from data.py):
+					</td>
+					<td>
+						<span>{{epub_filename}}</span>
+						<input type="hidden" name="filename" value="{{epub_filename}}">
+					</td>
+				</tr>
+				<tr {% if not error_1 %} style="display: none;" {% endif %}>
+					<td {% if not error_1 %} style="display: none;" {% endif %}>
+						<span class="error" {% if not error_1 %} style="display: none;" {% endif %}>
+							{{ error_1 }}
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Input your secret password (from do_not_copy.py):
+					</td>
+					<td>
+						<input type="text" name="password" value="">
+					</td>
+				</tr>
+				<tr  {% if not error_2 %} style="display: none;" {% endif %}>
+					<td {% if not error_2 %} style="display: none;" {% endif %}>
+						<span class="error" {% if not error_2 %} style="display: none;" {% endif %}>
+							{{ error_2 }}
+						</span>
+					</td>				
+				</tr>
+				<tr>
+					<td>
+						Select your epub:
+					</td>
+					<td>
+						<input type="file" name="epub" value="">
+					</td>
+				</tr>
+				<tr {% if not file_error %} style="display: none;" {% endif %}>
+					<td {% if not file_error %} style="display: none;" {% endif %}>
+						<span class="error"  {% if not file_error %} style="display: none;" {% endif %}>
+							{{ file_error }}
+						</span>
+					</td>
+				</tr>
+			</table>
+			<input type="checkbox" name="confirm" value="">
+			confirm everything is correct
+			<br>
+			<div class="error" {% if not error_3 %} style="display: none;" {% endif %}>{{ error_3 }}</div>
+			<input type="submit" value="upload">
+		</form>
+	</div>
+</body>
+</html>

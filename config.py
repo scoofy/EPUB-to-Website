@@ -9,16 +9,15 @@ BOOK_TITLE = data.BOOK_TITLE
 BOOK_SUBTITLE = data.BOOK_SUBTITLE
 AUTHOR_NAME = data.AUTHOR_NAME
 AUTHOR_WEBSITE = data.AUTHOR_WEBSITE
+EPUB_FILENAME = data.EPUB_FILENAME
+
+EPUB_UPLOADED = data.EPUB_UPLOADED
+EPUB_FILE_URL = data.EPUB_FILE_URL
 ####################### Global Variables #######################
-URL_CHECK_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
-    }
-mkd = markdown2.Markdown()
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(extensions=['jinja2.ext.with_'],
     loader = jinja2.FileSystemLoader(template_dir), 
     autoescape = True)
-upload_url = blobstore.create_upload_url('/upload')
 
 # epub filename
 EPUB_FILENAME = data.EPUB_FILENAME
@@ -69,22 +68,5 @@ for i in range(len(XHTML_SECTION_LIST)):
     BOOK_SECTION_DICT[SECTION_LIST[i]] = this_tuple
     XHTML_BOOK_SECTION_DICT[XHTML_SECTION_LIST[i]] = this_xhtml_tuple
 
-
-# Multi Drag/Drop Globals
-IMAGE_TYPES = re.compile('image/(gif|p?jpeg|(x-)?png)')
-ACCEPT_FILE_TYPES = IMAGE_TYPES
-IMAGE_EXTENTION_LIST = ["jpg", "jpeg", "gif", "png"]
-IMAGE_TYPES_LIST = ["image/" + x for x in IMAGE_EXTENTION_LIST]
-
-#########################################################
-REFERER_BLACKLIST = [
-    '/login', 
-    '/logout', 
-    '/signup', 
-    '/welcome', 
-    '/user_page_img_upload',
-    '/object_img_upload',
-    '/object_img_delete',
-    '/visitor_img_upload']
 REG_EX_LETTERS_AND_NUMBERS = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 REG_EX_LETTERS_NUMBERS_DOT_AND_POUND = r'(/(?:[\.\#a-zA-Z0-9_-]+/?)*)'
