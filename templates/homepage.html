@@ -93,7 +93,7 @@
 			<div class="">
 				<div class="button_container">
 					<a href="/thebook"><span class="button">read the book</span></a> 
-					{% if epub_uploaded %}<a href="/{{ epub_file_url }}" target="_blank"><span class="button">download the .epub</span></a>{% endif %}
+					{% if epub_uploaded %}<a href="{{ epub_file_url }}" target="_blank"><span class="button">download the .epub</span></a>{% endif %}
 					{% if website %}<a href="{{ website }}"><span class="button">meet the author</span></a>{% endif %}
 				</div>
 			</div>
