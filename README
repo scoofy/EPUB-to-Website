@@ -20,7 +20,7 @@ Step 8: Place your epub's css file in BOTH /css and /css/css.
 
 Step 9: Place all your images in the images folder (if you want unique error images, edit those in /images/error_images).
 
-Step 10: Set your unique password in the do_not_copy/do_not_copy.py, ideally, this would be a hash.
+Step 10: Set your unique password in /do_not_copy/do_not_copy.py, ideally, this would be a hash.
 
 Step 11: When you launch your website, navigate to "/upload" and upload your epub. If your upload is successful, follow the instructions by setting EPUB_UPLOADED to True and inputting the proper url for EPUB_FILE_URL. 
 
