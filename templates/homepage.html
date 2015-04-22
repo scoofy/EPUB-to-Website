@@ -91,20 +91,11 @@
 			{% endif %}
 			<div class="by">by {{ author }}</div>
 			<div class="">
-				<!--<form>-->
-					<div class="button_container">
-
-						<a href="/thebook"><span class="button">read the book</span></a> 
-						<!--
-						<input class="button" type="button" 
-							onClick="window.location.href='/{{ epub_filename }}'" 
-							value="download the .epub"
-						/>
-						-->
-						{% if epub_uploaded %}<a href="/{{ epub_filename }}" target="_blank"><span class="button">download the .epub</span></a>{% endif %}
-						{% if website %}<a href="{{ website }}"><span class="button">meet the author</span></a>{% endif %}
-					</div>
-				<!--</form>-->
+				<div class="button_container">
+					<a href="/thebook"><span class="button">read the book</span></a> 
+					{% if epub_uploaded %}<a href="/{{ epub_file_url }}" target="_blank"><span class="button">download the .epub</span></a>{% endif %}
+					{% if website %}<a href="{{ website }}"><span class="button">meet the author</span></a>{% endif %}
+				</div>
 			</div>
 			<div class="footer"></div>
 		</div>
