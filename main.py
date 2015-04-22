@@ -255,6 +255,7 @@ class UploadHandler(Handler):
     def get(self):
         if config.EPUB_UPLOADED:
             self.redirect("/")
+            return
         upload_url = blobstore.create_upload_url('/complete_upload')
         error_1 = self.request.get("error_1")
         error_2 = self.request.get("error_2")
@@ -271,6 +272,9 @@ class UploadHandler(Handler):
                     )
 class UploadCompletionHandler(ObjectUploadHandler):
     def post(self):
+        if config.EPUB_UPLOADED:
+            self.redirect("/")
+            return
         filename = self.request.get("filename")
         password = self.request.get("password")
         epub = self.request.get("epub")
