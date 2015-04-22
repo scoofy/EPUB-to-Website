@@ -1,0 +1,85 @@
+<head>
+	<title>
+		{{ book_title }}: {{ section_title }}
+	</title>
+	<script type="text/javascript" src="/js/jquery1.7.1min.js"></script>
+	<link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+	<link rel="icon" href="/favicon.ico?" type="image/x-icon">
+	<script type= "text/javascript" src="/js/bookpage.js"></script>
+	<style>
+		* {
+			//border: solid 1px red;
+		}
+		html, body {
+			margin: 0;
+		}
+		section {
+			margin: 0% 2% 0% 2%;
+		}
+		{% if page_is_a_cover %}
+			img {
+				margin: 0% 0% 5% 0%;
+				border: solid 1px black;
+				max-height: 700px;
+				max-width: 100%;
+			}
+		{% endif %}
+		.header {
+			position: fixed;
+			background-color: #eee;
+			border-bottom: solid 1px black;
+			height: 32px;
+			top: 0;
+			width: 100%;
+			z-index: 100;
+			text-align: center;
+		}
+		.header * {
+			text-decoration: none;
+			color: black;
+		}
+		.header *:visited {
+			color: black;
+		}
+		.left_button {
+			float:left; 
+			width: 200px;
+			border-radius: 5px;
+			border: solid 1px #777;
+			padding: 5px 10px 5px 10px;
+			margin: 1px;
+			background-color: #ddd;
+		}
+		.left_button:hover {
+			background-color: #444;
+			color: #fff;
+		}
+		.center_button {
+			text-align: center;
+			display: inline-block; 
+			width: 100px;
+			border-radius: 5px;
+			border: solid 1px #777;
+			padding: 5px 10px 5px 10px;
+			margin: 1px;
+			background-color: #ddd;
+		}
+		.center_button:hover {
+			background-color: #444;
+			color: #fff;
+		}
+		.right_button {
+			float:right; 
+			width: 200px;
+			border-radius: 5px;
+			border: solid 1px #777;
+			padding: 5px 10px 5px 10px;
+			margin: 1px 2px 1px 1px;
+			background-color: #ddd;
+		}
+		.right_button:hover {
+			background-color: #444;
+			color: #fff;
+		}
+	</style>
+</head>

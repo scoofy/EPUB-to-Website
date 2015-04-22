@@ -1,2 +1,19 @@
-{% include "header.html" %}
-{% include path %}
+<!DOCTYPE html>
+<html>
+{% include "head.html" %}
+<body>
+	<div id="total_number_of_pages" value="{{total_pages}}" style="display: none;">
+	</div>
+	{% for section in section_list %}
+		<div id="page_{{loop.index}}" style="
+			{% if current_page == loop.index %}
+			{% else %}
+				display: none;
+			{% endif %}
+		">
+			{% include "header.html" %}
+			{% include section %}
+		</div>
+	{% endfor %}
+</body>
+</html>

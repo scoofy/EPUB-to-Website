@@ -204,7 +204,8 @@ class BookPage(Handler):
         section = self.request.get('section')
         if not section:
             section = config.SECTION_LIST[0]
-        path = config.XHTML_SECTION_LIST[config.SECTION_LIST.index(section)]
+        index = config.SECTION_LIST.index(section)
+        path = config.XHTML_SECTION_LIST[index]
         previous_section = None
         next_section = None
         section_title = None
@@ -227,6 +228,10 @@ class BookPage(Handler):
                     previous_section = previous_section,
                     next_section = next_section,
                     page_is_a_cover = page_is_a_cover,
+
+                    section_list = config.XHTML_SECTION_LIST,
+                    current_page = index+1,
+                    total_pages = len(config.XHTML_SECTION_LIST)
                     )
     def post(self):
         pass
