@@ -75,6 +75,16 @@
 			<br>
 			<div class="error" {% if not error_3 %} style="display: none;" {% endif %}>{{ error_3 }}</div>
 			<input type="submit" value="upload">
+			<br>
+			<br>
+			<div class="delete_message">
+				Old versions, check the boxes to delete on upload:
+			</div>
+			<input type="hidden" name="number_of_previous_epubs" value="{{ number_of_previous_epubs }}">
+			{% for epub in all_previous_epub_files %}
+				<input type="checkbox" name="epub_to_delete_{{ loop.index }}" value="{{ epub.key().id() }}"> {{ epub.filename }}, created: {{ epub.created }}
+				<br>
+			{% endfor%}
 		</form>
 	</div>
 </body>

@@ -22,7 +22,7 @@ Step 9: Place all your images in the images folder (if you want unique error ima
 
 Step 10: Set your unique password in /do_not_copy/do_not_copy.py, ideally, this would be a hash.
 
-Step 11: When you launch your website, navigate to "/upload" and upload your epub. If your upload is successful, follow the instructions by setting EPUB_UPLOADED to True and inputting the proper url for EPUB_FILE_URL. 
+Step 11: When you launch your website, navigate to "/upload" and upload your epub (you can navigate back here to upload new versions and delete old versions). If your upload is successful, follow the instructions by setting EPUB_UPLOADED to True and inputting the proper url for EPUB_FILE_URL. 
 
 Step 12: Enjoy. There may some extra, required html editing in homepage.html, change the favicon.ico, etc., but everything else should be ready to go.
 

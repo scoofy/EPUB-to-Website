@@ -1,7 +1,8 @@
 from __future__ import with_statement
 import os, webapp2, jinja2, hashlib, hmac, string, random, time, datetime, logging, urllib
 import urllib2, mimetypes, cgi, re, uuid, json
-import config, model
+import config 
+from model import Epub
 import utilities as utils
 from data import data
 from do_not_copy import do_not_copy
@@ -253,6 +254,9 @@ class TextHandler(Handler):
         pass
 class UploadHandler(Handler):
     def get(self):
+        all_previous_epub_files = list(Epub.all())
+        number_of_previous_epubs = len(all_previous_epub_files)
+
         if config.EPUB_UPLOADED:
             self.redirect("/")
             return
@@ -269,6 +273,9 @@ class UploadHandler(Handler):
                     error_2 = error_2,
                     file_error = file_error,
                     error_3 = error_3,
+
+                    all_previous_epub_files = all_previous_epub_files,
+                    number_of_previous_epubs = number_of_previous_epubs,
                     )
 class UploadCompletionHandler(ObjectUploadHandler):
     def post(self):
@@ -298,7 +305,30 @@ class UploadCompletionHandler(ObjectUploadHandler):
             if not password:
                 error_2 = "Your password was incorrect."
             self.redirect("/upload?error_2=%s" % error_2)
-        #Successful Upload
+        #Success, now check to delete:
+        number_of_previous_epubs = self.request.get("number_of_previous_epubs")
+        if number_of_previous_epubs == "":
+            logging.error("number_of_previous_epubs was None")
+            return
+        number_of_previous_epubs = int(number_of_previous_epubs)
+        if number_of_previous_epubs > 1000:
+            logging.error("Someone is trying to cleverly overload the server. Nice try, jerks.")
+            return
+        files_to_delete_list = []
+        for i in range(number_of_previous_epubs + 1):
+            file_id = self.request.get("epub_to_delete_"+str(i))
+            if file_id:
+                files_to_delete_list.append(file_id)
+        if files_to_delete_list:
+            # Let's delete some files and blobs!
+            for file_id in files_to_delete_list:
+                obj = Epub.get_by_id(int(file_id))
+                if obj:
+                    blobinfo = obj.file_blob_key
+                    blobinfo.delete()
+                    obj.delete()
+
+        # Deleting over, back to the uploading!
         try:
             file_data = self.get_uploads()[0]
         except:
@@ -306,11 +336,11 @@ class UploadCompletionHandler(ObjectUploadHandler):
             return
         file_url = '/serve/%s' % file_data.key()
         file_blob_key = file_data.key()
-        new_epub = model.Epub(epoch = float(time.time()),
-                                file_url = file_url,
-                                file_blob_key = file_data.key(),
-                                filename = str(file_data.filename),
-                                )
+        new_epub = Epub(epoch = float(time.time()),
+                        file_url = file_url,
+                        file_blob_key = file_data.key(),
+                        filename = str(file_data.filename),
+                        )
         new_epub.put()
         self.redirect('/result?file_url=%s' % file_url)
 class ResultHandler(Handler):
