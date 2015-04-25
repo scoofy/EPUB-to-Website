@@ -77,6 +77,18 @@
 			width: 80%;
 			margin: 0 auto;
 		}
+		.support_button {
+			border-radius: 5px;
+			border: solid 1px #ccc;
+			color: #ccc;
+			padding: 10px 20px 10px 20px;
+			margin: 0 auto;
+		}
+		.support_button:hover {
+			background-color: #ccc;
+			color: #fff;
+			border-color: #666;
+		}
 	</style>
 </head>
 <body>
@@ -97,6 +109,9 @@
 					{% if epub_uploaded %}<a href="{{ epub_file_url }}" download="{{ epub_filename }}" target="_blank"><span class="button">download the .epub</span></a>{% endif %}
 					{% if website %}<a href="{{ website }}"><span class="button">meet the author</span></a>{% endif %}
 				</div>
+				{% if support %}
+					{% include "support/support_button.html" %}
+				{% endif %}
 			</div>
 			<div class="footer"></div>
 		</div>

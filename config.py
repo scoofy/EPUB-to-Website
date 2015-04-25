@@ -13,6 +13,9 @@ EPUB_FILENAME = data.EPUB_FILENAME
 
 EPUB_UPLOADED = data.EPUB_UPLOADED
 EPUB_FILE_URL = data.EPUB_FILE_URL
+
+AMAZON_GIFT_CARD_SUPPORT = data.AMAZON_GIFT_CARD_SUPPORT
+AMAZON_RECIPIENT_PUBLIC_EMAIL = data.AMAZON_RECIPIENT_PUBLIC_EMAIL
 ####################### Global Variables #######################
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(extensions=['jinja2.ext.with_'],

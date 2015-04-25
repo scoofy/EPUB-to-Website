@@ -194,6 +194,12 @@ class HomePage(Handler):
         
         author = config.AUTHOR_NAME
         website = config.AUTHOR_WEBSITE
+
+        support = config.AMAZON_GIFT_CARD_SUPPORT
+        support_email = config.AMAZON_RECIPIENT_PUBLIC_EMAIL
+        if not support and support_email:
+            support = False
+
         self.render('homepage.html', 
                     title = title,
                     subtitle = subtitle,
@@ -202,6 +208,7 @@ class HomePage(Handler):
                     epub_file_url = epub_file_url,
                     author = author,
                     website = website,
+                    support = support,
                     )   
     def post(self):
         pass
@@ -355,6 +362,17 @@ class ResultHandler(Handler):
                     error = error,
                     )
 
+class SupportHandler(Handler):
+    def get(self):
+        if not (config.AMAZON_GIFT_CARD_SUPPORT and config.AMAZON_RECIPIENT_PUBLIC_EMAIL):
+            self.redirect("/")
+            return
+        support_email = config.AMAZON_RECIPIENT_PUBLIC_EMAIL
+        self.render("support/support.html",
+                    support_email = support_email)
+
+
+
 class RobotPage(Handler):
     def get(self):
         pass
@@ -377,6 +395,7 @@ app = webapp2.WSGIApplication([
         ('/upload', UploadHandler),
         ('/complete_upload', UploadCompletionHandler),
         ('/result', ResultHandler),
+        ('/support', SupportHandler),
         ('/robots.txt', RobotPage),
         (r'/serve/([^/]+)?', FileServe),
         ], debug=True)
