@@ -2,7 +2,7 @@ from __future__ import with_statement
 import os, webapp2, jinja2, hashlib, hmac, string, random, time, datetime, logging, urllib
 import urllib2, mimetypes, cgi, re, uuid, json
 import config 
-from model import Epub
+from model import Epub, Cover
 import utilities as utils
 from data import data
 from do_not_copy import do_not_copy
@@ -188,9 +188,14 @@ class HomePage(Handler):
         title = config.BOOK_TITLE
         subtitle = config.BOOK_SUBTITLE
         
+        faux_cover_background_color = config.FAUX_COVER_BACKGROUND_COLOR_HEX
+
         epub_filename = config.EPUB_FILENAME
         epub_uploaded = config.EPUB_UPLOADED
         epub_file_url = config.EPUB_FILE_URL
+        epub_cover_url = ""
+        if config.EPUB_COVER_UPLOADED:
+            epub_cover_url = config.EPUB_COVER_URL
         
         author = config.AUTHOR_NAME
         website = config.AUTHOR_WEBSITE
@@ -203,9 +208,11 @@ class HomePage(Handler):
         self.render('homepage.html', 
                     title = title,
                     subtitle = subtitle,
+                    faux_cover_background_color = faux_cover_background_color,
                     epub_filename = epub_filename,
                     epub_uploaded = epub_uploaded,
                     epub_file_url = epub_file_url,
+                    epub_cover_url = epub_cover_url,
                     author = author,
                     website = website,
                     support = support,
@@ -308,10 +315,12 @@ class UploadCompletionHandler(ObjectUploadHandler):
             if not confirm:
                 error_3 = "You must confirm that everything is correct"
             self.redirect("/upload?error_1=%s&error_2=%s&error_3=%s&file_error=%s" % (error_1, error_2, error_3, file_error))
+            return
         if password != do_not_copy.secret():
             if not password:
                 error_2 = "Your password was incorrect."
             self.redirect("/upload?error_2=%s" % error_2)
+            return
         #Success, now check to delete:
         number_of_previous_epubs = self.request.get("number_of_previous_epubs")
         if number_of_previous_epubs == "":
@@ -350,6 +359,18 @@ class UploadCompletionHandler(ObjectUploadHandler):
                         )
         new_epub.put()
         self.redirect('/result?file_url=%s' % file_url)
+class CoverResultHandler(Handler):
+    def get(self):
+        file_url = self.request.get("file_url")
+        if not file_url:
+            error = True
+        else:
+            error = False
+        self.render("result.html", 
+                    file_url = file_url,
+                    error = error,
+                    )
+
 class ResultHandler(Handler):
     def get(self):
         file_url = self.request.get("file_url")
@@ -362,6 +383,98 @@ class ResultHandler(Handler):
                     error = error,
                     )
 
+
+class CoverHandler(Handler):
+    def get(self):
+        all_previous_files = list(Cover.all())
+        number_of_previous = len(all_previous_files)
+
+        if config.EPUB_COVER_UPLOADED:
+            self.redirect("/")
+            return
+        upload_url = blobstore.create_upload_url('/cover_upload')
+        error_1 = self.request.get("error_1")
+        error_2 = self.request.get("error_2")
+        file_error = self.request.get("file_error")
+        error_3 = self.request.get("error_3")
+        self.render("upload_cover.html",
+                    upload_url = upload_url,
+
+                    error_1 = error_1,
+                    error_2 = error_2,
+                    file_error = file_error,
+                    error_3 = error_3,
+
+                    all_previous_files = all_previous_files,
+                    number_of_previous = number_of_previous,
+                    )
+class CoverCompletionHandler(ObjectUploadHandler):
+    def post(self):
+        if config.EPUB_COVER_UPLOADED:
+            self.redirect("/")
+            return
+        #epub
+        password = self.request.get("password")
+        cover = self.request.get("cover")
+        confirm = self.request.get("confirm")
+        if not (password and cover and confirm):
+            # Unsuccessful
+            error_2 = ""
+            error_3 = ""
+            file_error = ""
+            if not password:
+                error_2 = "You must confirm your password."
+            if not cover:
+                file_error = "Hmm, it looks like you forgot to select a file to upload."
+            if not confirm:
+                error_3 = "You must confirm that everything is correct"
+            self.redirect("/cover?error_2=%s&error_3=%s&file_error=%s" % (error_2, error_3, file_error))
+            return
+        if password != do_not_copy.secret():
+            if not password:
+                error_2 = "Your password was incorrect."
+            self.redirect("/cover?error_2=%s" % error_2)
+            return
+        #Success, now check to delete:
+        number_of_previous = self.request.get("number_of_previous")
+        if number_of_previous == "":
+            logging.error("number_of_previous was None")
+            return
+        number_of_previous = int(number_of_previous)
+        if number_of_previous > 1000:
+            logging.error("Someone is trying to cleverly overload the server. Nice try, jerks.")
+            return
+        files_to_delete_list = []
+        for i in range(number_of_previous + 1):
+            file_id = self.request.get("file_to_delete_"+str(i))
+            if file_id:
+                files_to_delete_list.append(file_id)
+        if files_to_delete_list:
+            # Let's delete some files and blobs!
+            for file_id in files_to_delete_list:
+                obj = Cover.get_by_id(int(file_id))
+                if obj:
+                    blobinfo = obj.file_blob_key
+                    blobinfo.delete()
+                    obj.delete()
+
+        # Deleting over, back to the uploading!
+        try:
+            file_data = self.get_uploads()[0]
+        except:
+            self.redirect('/result')
+            return
+        file_url = '/serve/%s' % file_data.key()
+        file_blob_key = file_data.key()
+        new_cover = Cover(epoch = float(time.time()),
+                        file_url = file_url,
+                        file_blob_key = file_data.key(),
+                        filename = str(file_data.filename),
+                        )
+        new_cover.put()
+        self.redirect('/result_cover?file_url=%s' % file_url)
+
+
 class SupportHandler(Handler):
     def get(self):
         if not (config.AMAZON_GIFT_CARD_SUPPORT and config.AMAZON_RECIPIENT_PUBLIC_EMAIL):
@@ -370,8 +483,6 @@ class SupportHandler(Handler):
         support_email = config.AMAZON_RECIPIENT_PUBLIC_EMAIL
         self.render("support/support.html",
                     support_email = support_email)
-
-
 
 class RobotPage(Handler):
     def get(self):
@@ -395,6 +506,11 @@ app = webapp2.WSGIApplication([
         ('/upload', UploadHandler),
         ('/complete_upload', UploadCompletionHandler),
         ('/result', ResultHandler),
+
+        ('/cover', CoverHandler),
+        ('/cover_upload', CoverCompletionHandler),
+        ('/result_cover', CoverResultHandler),
+
         ('/support', SupportHandler),
         ('/robots.txt', RobotPage),
         (r'/serve/([^/]+)?', FileServe),

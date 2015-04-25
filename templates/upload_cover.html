@@ -23,15 +23,6 @@
 		Upload your epub:
 		<form method="post" action="{{upload_url}}" enctype="multipart/form-data">
 			<table>
-				<tr>
-					<td>
-						This should be your filename (from data.py):
-					</td>
-					<td>
-						<span>{{epub_filename}}</span>
-						<input type="hidden" name="filename" value="{{epub_filename}}">
-					</td>
-				</tr>
 				<tr {% if not error_1 %} style="display: none;" {% endif %}>
 					<td {% if not error_1 %} style="display: none;" {% endif %}>
 						<span class="error" {% if not error_1 %} style="display: none;" {% endif %}>
@@ -56,10 +47,10 @@
 				</tr>
 				<tr>
 					<td>
-						Select your epub:
+						Select your cover image:
 					</td>
 					<td>
-						<input type="file" name="epub" value="">
+						<input type="file" name="cover" value="">
 					</td>
 				</tr>
 				<tr {% if not file_error %} style="display: none;" {% endif %}>
@@ -80,9 +71,9 @@
 			<div class="delete_message">
 				Old versions, check the boxes to delete on upload:
 			</div>
-			<input type="hidden" name="number_of_previous_epubs" value="{{ number_of_previous_epubs }}">
-			{% for epub in all_previous_epub_files %}
-				<input type="checkbox" name="epub_to_delete_{{ loop.index }}" value="{{ epub.key().id() }}"> {{ epub.filename }}, created: {{ epub.created }}
+			<input type="hidden" name="number_of_previous" value="{{ number_of_previous }}">
+			{% for file in all_previous_files %}
+				<input type="checkbox" name="file_to_delete_{{ loop.index }}" value="{{ file.key().id() }}"> {{ file.filename }}, created: {{ file.created }}
 				<br>
 			{% endfor%}
 		</form>

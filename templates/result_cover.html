@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Upload
+	</title>
+	<style>
+		* {
+			padding: 5px;
+			margin: 5px;
+		}
+		table {
+			border: solid 1px black;
+			padding: 5px;
+		}
+		.error {
+			color: red;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		{% if not error %}
+			Congratulations, you've successfully uploaded your cove. It should be serving at: {{ file_url }}
+			<br>
+			<br>
+			<h4>
+				Please copy and paste:
+			</h4>
+			<br>
+			<br>
+			<h1>
+				"{{ file_url }}"
+			</h1>
+			<br>
+			<br>
+			<h4>
+				into data.py file as the value of EPUB_COVER_URL,
+				<br>
+				<br>
+			</h4>
+			<h1>
+				and make sure EPUB_COVER_UPLOADED to True
+			</h1>
+			<h4>
+				<br>
+				<br>
+				Finally, must redeploy the website to make the changes effective.
+			</h4>
+			<br>
+			<br>
+				If you need to find this infomation again, it is saved in the datastore.
+			<br>
+			<br>
+			<a href="/">
+				<button>
+					Okay I understand.
+				</button>
+			</a>
+		{% else %}
+			Something went wrong, please try to upload again.
+		{% endif %}
+	</div>
+</body>
+</html>
